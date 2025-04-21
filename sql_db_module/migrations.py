@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from SQL.users_model import UserBase
+from sql_db_module.users_model import UserBase
 
 engine = create_engine("sqlite:///GVBot.db", echo=True)
 

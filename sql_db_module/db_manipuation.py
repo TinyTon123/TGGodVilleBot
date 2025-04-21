@@ -2,8 +2,8 @@
 from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
 
-from SQL.migrations import engine
-from SQL.users_model import UserBase
+from sql_db_module.migrations import engine
+from sql_db_module.users_model import UserBase
 
 Session = sessionmaker(engine)
 
@@ -32,8 +32,8 @@ def find_user_by_tg_id(tg_id: int, session):
 @manipulate_db
 def find_user_by_gv_name(gv_name: str, session):
     """Получение пользователя из БД по имени в ГВ."""
-    gv_name = gv_name.lower()
-    statement = select(UserBase).where(UserBase.gv_name_lower == gv_name)
+    gv_name_lower = gv_name.lower()
+    statement = select(UserBase).where(UserBase.gv_name_lower == gv_name_lower)
     user = session.scalars(statement).one_or_none()
     if user:
         return user.tg_id, user.tg_name

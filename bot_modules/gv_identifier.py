@@ -2,7 +2,7 @@ from aiogram import Router, F
 from aiogram.filters import Command, CommandObject
 from aiogram.types import Message
 
-from SQL.db_manipuation import delete_user, find_user_by_tg_id, find_user_by_gv_name, upsert_user
+from sql_db_module.db_manipuation import delete_user, find_user_by_tg_id, find_user_by_gv_name, upsert_user
 
 router: Router = Router()
 
@@ -11,7 +11,7 @@ async def set_link_to_gv(message: Message, command: CommandObject) -> None:
     """Записывает в БД id пользователя и его никнеймы в ТГ и ГВ."""
     gv_name = command.args
     if gv_name:
-        if find_user_by_gv_name(gv_name, ) is None:
+        if find_user_by_gv_name(gv_name) is None:
             user = message.reply_to_message.from_user
             tg_name = f'{user.first_name} {user.last_name}' if user.last_name else user.first_name
             upsert_user(user.id, tg_name, gv_name)

@@ -7,7 +7,7 @@ from aiogram import Bot, Dispatcher, F
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 
-from modules import common_handlers, gv_identifier
+from bot_modules import common_handlers, gv_identifier
 
 from config_data.config import load_config, Config
 

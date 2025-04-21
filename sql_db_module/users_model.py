@@ -12,4 +12,4 @@ class UserBase(Base):
 	tg_id: Mapped[int] = mapped_column(primary_key=True)
 	tg_name: Mapped[str] = mapped_column(String(30))
 	gv_name: Mapped[str] = mapped_column(String(30), unique=True)
-	gv_name_lower: Mapped[str] = mapped_column(String(30))
+	gv_name_lower: Mapped[str] = mapped_column(String(30), unique=True)
