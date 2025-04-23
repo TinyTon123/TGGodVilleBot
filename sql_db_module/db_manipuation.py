@@ -1,4 +1,3 @@
-
 from sqlalchemy import select
 from sqlalchemy.orm import sessionmaker
 
@@ -6,6 +5,7 @@ from sql_db_module.migrations import engine
 from sql_db_module.users_model import UserBase
 
 Session = sessionmaker(engine)
+
 
 def manipulate_db(func: callable):
     """Декоратор для открытия-закрытия сессий с БД."""
@@ -21,6 +21,7 @@ def manipulate_db(func: callable):
         return result
     return wrapper
 
+
 @manipulate_db
 def find_user_by_tg_id(tg_id: int, session):
     """Получение пользователя из БД по id в ТГ."""
@@ -28,6 +29,7 @@ def find_user_by_tg_id(tg_id: int, session):
     user = session.scalars(statement).one_or_none()
     if user:
         return user.gv_name
+
 
 @manipulate_db
 def find_user_by_gv_name(gv_name: str, session):
@@ -37,6 +39,7 @@ def find_user_by_gv_name(gv_name: str, session):
     user = session.scalars(statement).one_or_none()
     if user:
         return user.tg_id, user.tg_name
+
 
 @manipulate_db
 def upsert_user(tg_id: int, tg_name: str, gv_name: str, session) -> None:
@@ -48,6 +51,7 @@ def upsert_user(tg_id: int, tg_name: str, gv_name: str, session) -> None:
         gv_name_lower=gv_name.lower()
     )
     session.merge(user)
+
 
 @manipulate_db
 def delete_user(param: int | str, session) -> str:

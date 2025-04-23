@@ -1,12 +1,27 @@
-from aiogram import Router, F
+from aiogram import F, Router
 from aiogram.filters import Command, CommandObject
 from aiogram.types import Message
 
-from sql_db_module.db_manipuation import delete_user, find_user_by_tg_id, find_user_by_gv_name, upsert_user
+from config_data.config import Config, load_config
+from sql_db_module.db_manipuation import (
+    delete_user,
+    find_user_by_gv_name,
+    find_user_by_tg_id,
+    upsert_user
+)
 
 router: Router = Router()
 
-@router.message(Command("this"), F.reply_to_message, ~F.reply_to_message.from_user.is_bot)
+config: Config = load_config()
+allowed_admins: set[int] = config.chats_and_admins.allowed_admins
+
+
+@router.message(
+    Command("this"),
+    F.reply_to_message,
+    F.from_user.id.in_(allowed_admins),
+    ~F.reply_to_message.from_user.is_bot,
+)
 async def set_link_to_gv(message: Message, command: CommandObject) -> None:
     """Записывает в БД id пользователя и его никнеймы в ТГ и ГВ."""
     gv_name = command.args
@@ -54,7 +69,8 @@ async def get_user_from_db(message: Message, command: CommandObject) -> None:
             return
     await message.answer('Мне нужен либо ник в ГВ, либо реплай на сообщение.')
 
-@router.message(Command("del"))
+
+@router.message(Command("del"), F.from_user.id.in_(allowed_admins))
 async def delete_user_from_db(message: Message, command: CommandObject) -> None:
     """Удаляет из БД пользователя по id в ТГ или нику в ГВ."""
     if command.args and not message.reply_to_message:
