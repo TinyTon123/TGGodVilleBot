@@ -1,12 +1,16 @@
+from asyncio import sleep
+
 from aiogram import F, Router
 from aiogram.filters import Command, CommandObject
 from aiogram.types import Message
+import requests
 
 from config_data.config import Config, load_config
 from sql_db_module.db_manipuation import (
     delete_user,
     find_user_by_gv_name,
     find_user_by_tg_id,
+    get_all_names,
     upsert_user
 )
 
@@ -80,3 +84,39 @@ async def delete_user_from_db(message: Message, command: CommandObject) -> None:
     else:
         result = 'Непонятно, кого удаляем.'
     await message.answer(result)
+
+
+@router.message(Command("members"), F.from_user.id.in_(allowed_admins))
+async def check_guild_members(message: Message) -> None:
+    await message.answer('Задачу понял — запрашиваю сервер ГВ')
+    all_names: list[str] = get_all_names()
+    url: str = 'https://godville.net/gods/api/'
+    in_guild: list = []
+    left_guild: list = []
+    error_names: list = []
+    for name in all_names:
+        response = requests.get(url + name)
+        if response.status_code == 200:
+            clan = response.json()['clan']
+            string = f'<a href="https://godville.net/gods/{name}">{name}</a>'
+            if clan == 'Дом горячих кузнецов':
+                in_guild.append(string)
+            else:
+                left_guild.append(string)
+        else:
+            error_names.append(name)
+        await sleep(1)
+
+    reply_text: str = '\---===== Дом горячих кузнецов =====---/\n\n'
+    for player in in_guild:
+        reply_text += f'{player}\n'
+
+    reply_text += '\n------- Покинули ДГК -------\n\n'
+    for player in left_guild:
+        reply_text += f'{player}\n'
+
+    reply_text += '\n------- Сменили имя -------\n\n'
+    for player in error_names:
+        reply_text += f'{player}\n'
+
+    await message.answer(reply_text)

@@ -67,3 +67,10 @@ def delete_user(param: int | str, session) -> str:
         session.delete(user_to_delete)
         return 'Юзер удален.'
     return 'Такого юзера нет.'
+
+
+@manipulate_db
+def get_all_names(session):
+    query = select(UserBase.gv_name)
+    all_names = session.execute(query).scalars().all()
+    return all_names
